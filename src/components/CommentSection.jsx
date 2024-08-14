@@ -14,6 +14,9 @@ const CommentSection = ({ header, styleClasses, handleEditor, isReply }) => {
         const storedComments = JSON.parse(localStorage.getItem('comments')) || [];
         setComments(storedComments);
     }, []);
+    useEffect(() => {
+        localStorage.setItem('comments', JSON.stringify(comments));
+    }, [comments]);
 
     const handleSortChange = (order) => {
         setSortOrder(order);
@@ -31,7 +34,7 @@ const CommentSection = ({ header, styleClasses, handleEditor, isReply }) => {
 
     const handlePostComment = () => {
         if (name.trim() && message.trim()) {
-            setComments([
+            const newComment=([
                 ...comments,
                 {
                     id: uuidv4(),
@@ -41,6 +44,9 @@ const CommentSection = ({ header, styleClasses, handleEditor, isReply }) => {
                     replies: [] 
                 }
             ]);
+            const updatedComments = [...comments, newComment];
+            setComments(updatedComments);
+            localStorage.setItem('comments', JSON.stringify(updatedComments));
             setName('');
             setMessage('');
         }
@@ -60,13 +66,15 @@ const CommentSection = ({ header, styleClasses, handleEditor, isReply }) => {
     };
 
     const handleAddReply = (commentId, reply) => {
-        setComments(prevComments =>
+        const updatedComments=(prevComments =>
             prevComments.map(comment =>
                 comment.id === commentId
                     ? { ...comment, replies: [...comment.replies, reply] }
                     : comment
             )
         );
+        setComments(updatedComments);
+        localStorage.setItem('comments', JSON.stringify(updatedComments));
     };
 
     const handleDelete = (id) => {
@@ -74,7 +82,7 @@ const CommentSection = ({ header, styleClasses, handleEditor, isReply }) => {
         setComments(updatedComments);
         localStorage.setItem('comments', JSON.stringify(updatedComments));
     };
-    
+
     return (
         <div className="p-6 w-full">
             <div className={styleClasses + " h-[20vh] bg-gray-400 flex flex-col p-5"}>
